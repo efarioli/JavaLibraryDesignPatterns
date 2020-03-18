@@ -43,8 +43,6 @@ public class CustomerGateway extends DB_ConnectionManager
         }
     }
 
-
-
     @Override
     protected boolean doExists(Connection conn)
     {
@@ -91,10 +89,9 @@ public class CustomerGateway extends DB_ConnectionManager
         return user;
     }
 
-    public void initialiseTable() throws Exception
+    @Override
+    protected void doinitialiseTable(Connection conn) throws Exception
     {
-        Connection conn = getConnection();
-
         try
         {
             PreparedStatement stmt = conn.prepareStatement(CREATE_CUSTOMER_TABLE);
@@ -122,8 +119,6 @@ public class CustomerGateway extends DB_ConnectionManager
         {
             throw new Exception("ERROR: Customer table not created", sqle);
         }
-
-        closeConnection(conn);
     }
 
 }

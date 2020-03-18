@@ -61,7 +61,19 @@ public abstract class DB_ConnectionManager
         return result;
     }
 
+    public void initialiseTable() throws Exception
+    {
+        Connection conn = getConnection();
+
+        doinitialiseTable(conn);
+
+        closeConnection(conn);
+    }
+
     protected abstract void doDropTable(Connection conn);
 
     protected abstract boolean doExists(Connection conn);
+
+    protected abstract void doinitialiseTable(Connection conn) throws Exception;
+
 }

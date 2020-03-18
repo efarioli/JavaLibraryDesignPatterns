@@ -81,8 +81,8 @@ public class OrderGateway extends DB_ConnectionManager
 
         return findOrder(orderId);
     }
-    
-     @Override
+
+    @Override
     protected boolean doExists(Connection conn)
     {
         try
@@ -240,10 +240,9 @@ public class OrderGateway extends DB_ConnectionManager
         return orders;
     }
 
-    public void initialiseTable() throws Exception
+    @Override
+    protected void doinitialiseTable(Connection conn) throws Exception
     {
-        Connection conn = getConnection();
-
         try
         {
             PreparedStatement stmt = conn.prepareStatement(CREATE_ORDER_TABLE);
@@ -316,8 +315,6 @@ public class OrderGateway extends DB_ConnectionManager
         {
             throw new Exception("ERROR: Order status not set", sqle);
         }
-
-        closeConnection(conn);
     }
 
     public Order insertOrder(Order order) throws Exception
@@ -377,9 +374,7 @@ public class OrderGateway extends DB_ConnectionManager
         return findOrder(orderId);
     }
 
-   
-    
-     @Override
+    @Override
     protected void doDropTable(Connection conn)
     {
         try
@@ -387,7 +382,7 @@ public class OrderGateway extends DB_ConnectionManager
             PreparedStatement stmt = conn.prepareStatement(DROP_ORDERLINE_TABLE);
             stmt.executeUpdate();
             stmt.close();
-            
+
             stmt = conn.prepareStatement(DROP_ORDER_TABLE);
             stmt.executeUpdate();
             stmt.close();

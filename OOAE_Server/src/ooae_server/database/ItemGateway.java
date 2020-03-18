@@ -267,10 +267,9 @@ public class ItemGateway extends DB_ConnectionManager
         return items;
     }
 
-    public void initialiseTable() throws Exception
+    @Override
+    protected void doinitialiseTable(Connection conn) throws Exception
     {
-        Connection conn = getConnection();
-
         try
         {
             PreparedStatement stmt = conn.prepareStatement(CREATE_ITEM_TABLE);
@@ -300,8 +299,6 @@ public class ItemGateway extends DB_ConnectionManager
         {
             throw new Exception("ERROR: Item table not created", sqle);
         }
-
-        closeConnection(conn);
     }
 
     public Item insertItem(Item item) throws Exception

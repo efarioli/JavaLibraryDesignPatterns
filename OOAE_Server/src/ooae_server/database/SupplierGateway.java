@@ -36,14 +36,12 @@ public class SupplierGateway extends DB_ConnectionManager
         }
     }
 
-   
-    
     @Override
     protected boolean doExists(Connection conn)
     {
         try
         {
-          PreparedStatement stmt = conn.prepareStatement(GET_ALL_SUPPLIERS + " FETCH FIRST 1 ROWS ONLY");
+            PreparedStatement stmt = conn.prepareStatement(GET_ALL_SUPPLIERS + " FETCH FIRST 1 ROWS ONLY");
             stmt.executeQuery().close();
             stmt.close();
             return true;
@@ -54,10 +52,9 @@ public class SupplierGateway extends DB_ConnectionManager
         }
     }
 
-    public void initialiseTable() throws Exception
+    @Override
+    protected void doinitialiseTable(Connection conn) throws Exception
     {
-        Connection conn = getConnection();
-
         try
         {
             PreparedStatement stmt = conn.prepareStatement(CREATE_SUPPLIER_TABLE);
@@ -82,7 +79,5 @@ public class SupplierGateway extends DB_ConnectionManager
         {
             throw new Exception("ERROR: Supplier table not created", sqle);
         }
-
-        closeConnection(conn);
     }
 }
