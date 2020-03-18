@@ -60,8 +60,7 @@ public class ItemGateway extends DB_ConnectionManager
             stmt.setInt(2, itemId);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Decrement of item quantity failed", sqle);
         }
@@ -69,21 +68,17 @@ public class ItemGateway extends DB_ConnectionManager
         closeConnection(conn);
     }
 
-    public void dropTable() throws Exception
+    @Override
+    protected void doDropTable(Connection conn)
     {
-        Connection conn = getConnection();
-
         try
         {
             PreparedStatement stmt = conn.prepareStatement(DROP_ITEM_TABLE);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
         }
-
-        closeConnection(conn);
     }
 
     public boolean exists()
@@ -96,8 +91,7 @@ public class ItemGateway extends DB_ConnectionManager
             stmt.close();
             closeConnection(conn);
             return true;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             return false;
         }
@@ -139,8 +133,7 @@ public class ItemGateway extends DB_ConnectionManager
 
             rs.close();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: retrieval of item failed", sqle);
         }
@@ -180,8 +173,7 @@ public class ItemGateway extends DB_ConnectionManager
 
             rs.close();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: retrieval of item failed", sqle);
         }
@@ -222,8 +214,7 @@ public class ItemGateway extends DB_ConnectionManager
 
             rs.close();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: retrieval of items failed", sqle);
         }
@@ -265,8 +256,7 @@ public class ItemGateway extends DB_ConnectionManager
 
             rs.close();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: retrieval of items failed", sqle);
         }
@@ -285,8 +275,7 @@ public class ItemGateway extends DB_ConnectionManager
             PreparedStatement stmt = conn.prepareStatement(CREATE_ITEM_TABLE);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Item table not created", sqle);
         }
@@ -306,8 +295,7 @@ public class ItemGateway extends DB_ConnectionManager
                 stmt.executeUpdate();
             }
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Item table not created", sqle);
         }
@@ -318,7 +306,7 @@ public class ItemGateway extends DB_ConnectionManager
     public Item insertItem(Item item) throws Exception
     {
         Item insertedItem = null;
-    
+
         Connection conn = getConnection();
 
         try
@@ -332,10 +320,9 @@ public class ItemGateway extends DB_ConnectionManager
             stmt.setInt(6, item.getStockReorderLevel());
             stmt.executeUpdate();
             stmt.close();
-            
+
             insertedItem = findItem(item.getName(), item.getDescription(), item.getSupplier().getSupplierId(), item.getPrice(), item.getQuantityInStock(), item.getStockReorderLevel());
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Item insertion failed", sqle);
         }
@@ -347,7 +334,7 @@ public class ItemGateway extends DB_ConnectionManager
     public Item updateItemQuantityInStock(Item item) throws Exception
     {
         Item updatedItem = null;
-    
+
         Connection conn = getConnection();
 
         try
@@ -357,10 +344,9 @@ public class ItemGateway extends DB_ConnectionManager
             stmt.setInt(2, item.getItemId());
             stmt.executeUpdate();
             stmt.close();
-            
+
             updatedItem = findItem(item.getItemId());
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Item insertion failed", sqle);
         }

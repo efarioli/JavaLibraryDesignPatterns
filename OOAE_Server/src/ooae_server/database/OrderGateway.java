@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ooae_server.entity.Customer;
 import ooae_server.entity.Item;
 import ooae_server.entity.Order;
@@ -73,35 +75,13 @@ public class OrderGateway extends DB_ConnectionManager
             stmt.setInt(1, orderId);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
         }
 
         closeConnection(conn);
 
         return findOrder(orderId);
-    }
-
-    public void dropTable() throws Exception
-    {
-        Connection conn = getConnection();
-
-        try
-        {
-            PreparedStatement stmt = conn.prepareStatement(DROP_ORDERLINE_TABLE);
-            stmt.executeUpdate();
-            stmt.close();
-
-            stmt = conn.prepareStatement(DROP_ORDER_TABLE);
-            stmt.executeUpdate();
-            stmt.close();
-        }
-        catch (SQLException sqle)
-        {
-        }
-
-        closeConnection(conn);
     }
 
     public boolean exists()
@@ -114,8 +94,7 @@ public class OrderGateway extends DB_ConnectionManager
             stmt.close();
             closeConnection(conn);
             return true;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             return false;
         }
@@ -161,16 +140,13 @@ public class OrderGateway extends DB_ConnectionManager
                             item,
                             rs.getDouble("Price"),
                             rs.getInt("Quantity"));
-                }
-                while (rs.next());
-            }
-            else
+                } while (rs.next());
+            } else
             {
                 throw new Exception("ERROR: There has been a problem finding the order");
             }
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
 //            sqle.printStackTrace();
         }
@@ -194,14 +170,12 @@ public class OrderGateway extends DB_ConnectionManager
             if (rs.next())
             {
                 newOrderId = rs.getInt("OrderId");
-            }
-            else
+            } else
             {
                 throw new Exception("ERROR: There has been a problem with the order insertion");
             }
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
 //            sqle.printStackTrace();
         }
@@ -258,8 +232,7 @@ public class OrderGateway extends DB_ConnectionManager
                         rs.getInt("Quantity"));
             }
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
 //            sqle.printStackTrace();
         }
@@ -278,8 +251,7 @@ public class OrderGateway extends DB_ConnectionManager
             PreparedStatement stmt = conn.prepareStatement(CREATE_ORDER_TABLE);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Order table not created", sqle);
         }
@@ -289,8 +261,7 @@ public class OrderGateway extends DB_ConnectionManager
             PreparedStatement stmt = conn.prepareStatement(CREATE_ORDERLINE_TABLE);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: OrderLine table not created", sqle);
         }
@@ -335,8 +306,7 @@ public class OrderGateway extends DB_ConnectionManager
                 {
                     cancelStmt.setInt(1, i);
                     cancelStmt.executeUpdate();
-                }
-                else
+                } else
                 {
                     shipStmt.setInt(1, i);
                     shipStmt.executeUpdate();
@@ -344,8 +314,7 @@ public class OrderGateway extends DB_ConnectionManager
             }
             cancelStmt.close();
             shipStmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Order status not set", sqle);
         }
@@ -381,8 +350,7 @@ public class OrderGateway extends DB_ConnectionManager
                 itemTable.decrementItemQuantityInStock(line.getItem().getItemId(), line.getQuantity());
             }
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
 //            sqle.printStackTrace();
         }
@@ -402,13 +370,31 @@ public class OrderGateway extends DB_ConnectionManager
             stmt.setInt(1, orderId);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
         }
 
         closeConnection(conn);
 
         return findOrder(orderId);
+    }
+
+   
+    
+     @Override
+    protected void doDropTable(Connection conn)
+    {
+        try
+        {
+            PreparedStatement stmt = conn.prepareStatement(DROP_ORDERLINE_TABLE);
+            stmt.executeUpdate();
+            stmt.close();
+            
+            stmt = conn.prepareStatement(DROP_ORDER_TABLE);
+            stmt.executeUpdate();
+            stmt.close();
+        } catch (SQLException ex)
+        {
+        }
     }
 }

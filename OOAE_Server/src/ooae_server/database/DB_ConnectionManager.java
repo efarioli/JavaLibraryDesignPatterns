@@ -2,6 +2,7 @@ package ooae_server.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -12,7 +13,7 @@ public abstract class DB_ConnectionManager
 {
 
     private static final String DATABASE_URL = "jdbc:derby://localhost:1527/OOAEassignment;user=ooae;password=ooae";
-    
+
     protected final void closeConnection(Connection conn) throws Exception
     {
         if (conn != null)
@@ -20,8 +21,7 @@ public abstract class DB_ConnectionManager
             try
             {
                 conn.close();
-            }
-            catch (SQLException sqle)
+            } catch (SQLException sqle)
             {
                 throw new Exception("ERROR: closure of database connection failed", sqle);
             }
@@ -36,12 +36,21 @@ public abstract class DB_ConnectionManager
         {
             DriverManager.registerDriver(new org.apache.derby.jdbc.ClientDriver());
             conn = DriverManager.getConnection(DATABASE_URL);
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: connection to database failed", sqle);
         }
 
         return conn;
     }
+
+    public void dropTable() throws Exception
+    {
+        Connection conn = getConnection();
+
+        doDropTable(conn);
+
+        closeConnection(conn);
+    }
+    protected abstract void doDropTable(Connection conn);
 }

@@ -23,21 +23,17 @@ public class SupplierGateway extends DB_ConnectionManager
     private static final String GET_ALL_SUPPLIERS = "SELECT * FROM Supplier";
     private static final String INSERT_SUPPLIER = "INSERT INTO Supplier (Name) VALUES (?)";
 
-    public void dropTable() throws Exception
+    @Override
+    protected void doDropTable(Connection conn)
     {
-        Connection conn = getConnection();
-
         try
         {
             PreparedStatement stmt = conn.prepareStatement(DROP_SUPPLIER_TABLE);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
         }
-
-        closeConnection(conn);
     }
 
     public boolean exists()
@@ -50,8 +46,7 @@ public class SupplierGateway extends DB_ConnectionManager
             stmt.close();
             closeConnection(conn);
             return true;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             return false;
         }
@@ -66,8 +61,7 @@ public class SupplierGateway extends DB_ConnectionManager
             PreparedStatement stmt = conn.prepareStatement(CREATE_SUPPLIER_TABLE);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Supplier table not created", sqle);
         }
@@ -82,8 +76,7 @@ public class SupplierGateway extends DB_ConnectionManager
                 stmt.executeUpdate();
             }
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Supplier table not created", sqle);
         }

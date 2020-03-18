@@ -27,22 +27,20 @@ public class CustomerGateway extends DB_ConnectionManager
     private static final String GET_ALL_CUSTOMERS = "SELECT * FROM Customer";
     private static final String GET_CUSTOMER = "SELECT * FROM Customer WHERE Username = ?";
     private static final String INSERT_CUSTOMER = "INSERT INTO Customer (Name, UserName, Password) VALUES (?, ?, ?)";
-    
-    public void dropTable() throws Exception
-    {
-        Connection conn = getConnection();
 
+    
+
+    @Override
+    protected void doDropTable(Connection conn)
+    {
         try
         {
             PreparedStatement stmt = conn.prepareStatement(DROP_CUSTOMER_TABLE);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
         }
-
-        closeConnection(conn);
     }
 
     public boolean exists()
@@ -55,8 +53,7 @@ public class CustomerGateway extends DB_ConnectionManager
             stmt.close();
             closeConnection(conn);
             return true;
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             return false;
         }
@@ -78,19 +75,17 @@ public class CustomerGateway extends DB_ConnectionManager
                 user.setName(rs.getString("Name"));
                 user.setUserName(rs.getString("Username"));
                 user.setPassword(rs.getString("Password"));
-            }
-            else
+            } else
             {
                 user.setCustomerId(-1);
             }
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
         }
 
         closeConnection(conn);
-        
+
         return user;
     }
 
@@ -103,8 +98,7 @@ public class CustomerGateway extends DB_ConnectionManager
             PreparedStatement stmt = conn.prepareStatement(CREATE_CUSTOMER_TABLE);
             stmt.executeUpdate();
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
 //            sqle.printStackTrace();
             throw new Exception("ERROR: Customer table not created", sqle);
@@ -122,12 +116,12 @@ public class CustomerGateway extends DB_ConnectionManager
                 stmt.executeUpdate();
             }
             stmt.close();
-        }
-        catch (SQLException sqle)
+        } catch (SQLException sqle)
         {
             throw new Exception("ERROR: Customer table not created", sqle);
         }
 
         closeConnection(conn);
     }
+
 }
