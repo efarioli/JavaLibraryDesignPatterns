@@ -12,36 +12,16 @@ import java.sql.SQLException;
 public abstract class DB_ConnectionManager
 {
 
-    private static final String DATABASE_URL = "jdbc:derby://localhost:1527/OOAEassignment;user=ooae;password=ooae";
+        private DB_ConnectionPool pool = new DB_ConnectionPool();
 
     protected final void closeConnection(Connection conn) throws Exception
     {
-        if (conn != null)
-        {
-            try
-            {
-                conn.close();
-            } catch (SQLException sqle)
-            {
-                throw new Exception("ERROR: closure of database connection failed", sqle);
-            }
-        }
+       pool.releaseConnection(conn);
     }
 
     protected final Connection getConnection() throws Exception
     {
-        Connection conn = null;
-
-        try
-        {
-            DriverManager.registerDriver(new org.apache.derby.jdbc.ClientDriver());
-            conn = DriverManager.getConnection(DATABASE_URL);
-        } catch (SQLException sqle)
-        {
-            throw new Exception("ERROR: connection to database failed", sqle);
-        }
-
-        return conn;
+       return pool.acquireConnection();
     }
 
     public void dropTable() throws Exception
