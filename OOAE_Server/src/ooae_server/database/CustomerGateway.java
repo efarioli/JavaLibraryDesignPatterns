@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ooae_server.entity.Customer;
 
 /**
@@ -28,8 +30,6 @@ public class CustomerGateway extends DB_ConnectionManager
     private static final String GET_CUSTOMER = "SELECT * FROM Customer WHERE Username = ?";
     private static final String INSERT_CUSTOMER = "INSERT INTO Customer (Name, UserName, Password) VALUES (?, ?, ?)";
 
-    
-
     @Override
     protected void doDropTable(Connection conn)
     {
@@ -43,17 +43,19 @@ public class CustomerGateway extends DB_ConnectionManager
         }
     }
 
-    public boolean exists()
+
+
+    @Override
+    protected boolean doExists(Connection conn)
     {
         try
         {
-            Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(GET_ALL_CUSTOMERS + " FETCH FIRST 1 ROWS ONLY");
             stmt.executeQuery().close();
             stmt.close();
-            closeConnection(conn);
             return true;
-        } catch (Exception e)
+
+        } catch (SQLException ex)
         {
             return false;
         }

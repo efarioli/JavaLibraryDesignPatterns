@@ -52,5 +52,16 @@ public abstract class DB_ConnectionManager
 
         closeConnection(conn);
     }
+
+    public boolean exists() throws Exception
+    {
+        Connection conn = getConnection();
+        boolean result = doExists(conn);
+        closeConnection(conn);
+        return result;
+    }
+
     protected abstract void doDropTable(Connection conn);
+
+    protected abstract boolean doExists(Connection conn);
 }

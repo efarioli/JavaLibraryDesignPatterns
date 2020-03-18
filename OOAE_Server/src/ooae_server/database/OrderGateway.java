@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ooae_server.entity.Customer;
 import ooae_server.entity.Item;
 import ooae_server.entity.Order;
@@ -83,18 +81,18 @@ public class OrderGateway extends DB_ConnectionManager
 
         return findOrder(orderId);
     }
-
-    public boolean exists()
+    
+     @Override
+    protected boolean doExists(Connection conn)
     {
         try
         {
-            Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(GET_ALL_ORDERS + " FETCH FIRST 1 ROWS ONLY");
             stmt.executeQuery().close();
             stmt.close();
-            closeConnection(conn);
             return true;
-        } catch (Exception e)
+
+        } catch (SQLException ex)
         {
             return false;
         }

@@ -36,17 +36,19 @@ public class SupplierGateway extends DB_ConnectionManager
         }
     }
 
-    public boolean exists()
+   
+    
+    @Override
+    protected boolean doExists(Connection conn)
     {
         try
         {
-            Connection conn = getConnection();
-            PreparedStatement stmt = conn.prepareStatement(GET_ALL_SUPPLIERS + " FETCH FIRST 1 ROWS ONLY");
+          PreparedStatement stmt = conn.prepareStatement(GET_ALL_SUPPLIERS + " FETCH FIRST 1 ROWS ONLY");
             stmt.executeQuery().close();
             stmt.close();
-            closeConnection(conn);
             return true;
-        } catch (Exception e)
+
+        } catch (SQLException e)
         {
             return false;
         }
