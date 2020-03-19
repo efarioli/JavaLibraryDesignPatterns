@@ -4,20 +4,12 @@ import com.google.gson.Gson;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
-import ooae_library.data_transfer_object.CustomerDTO;
 import ooae_library.data_transfer_object.ItemDTO;
-import ooae_library.data_transfer_object.OrderDTO;
-import ooae_library.data_transfer_object.OrderLineDTO;
-import ooae_library.data_transfer_object.SupplierDTO;
-import ooae_server.entity.Item;
-import ooae_server.entity.Order;
+import ooae_server.entity.*;
 import ooae_server.database.CustomerGateway;
 import ooae_server.database.ItemGateway;
 import ooae_server.database.OrderGateway;
 import ooae_server.database.SupplierGateway;
-import ooae_server.entity.OrderLine;
-import ooae_server.entity.Supplier;
 
 /**
  *
@@ -39,8 +31,7 @@ public class AdminClientResponder implements Runnable
         if (inputParts.length > 2)
         {
             jsonInStr = inputParts[2];
-        }
-        else
+        } else
         {
             jsonInStr = null;
         }
@@ -77,7 +68,7 @@ public class AdminClientResponder implements Runnable
 
                     Order order = Order.findOrder(orderId);
                     Order shippedOrder = null;
-                    
+
                     if (order != null)
                     {
                         shippedOrder = order.ship();
@@ -126,8 +117,7 @@ public class AdminClientResponder implements Runnable
             {
                 socket.close();
             }
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
 //            e.printStackTrace();
             clientOut.println(e.getMessage());
@@ -151,8 +141,6 @@ public class AdminClientResponder implements Runnable
         }
     }
 
-   
-
     private void initialiseDatabase() throws Exception
     {
         CustomerGateway customerTable = new CustomerGateway();
@@ -172,8 +160,7 @@ public class AdminClientResponder implements Runnable
             supplierTable.initialiseTable();
             itemTable.initialiseTable();
             orderTable.initialiseTable();
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             errorMsgs += e.getMessage() + "\n";
         }

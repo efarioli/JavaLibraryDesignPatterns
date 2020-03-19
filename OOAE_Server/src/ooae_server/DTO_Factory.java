@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import ooae_library.data_transfer_object.*;
 import ooae_server.entity.*;
+
 /**
  *
  * @author f023507i
@@ -102,7 +103,8 @@ public class DTO_Factory
         }
         return orderLinesDTO;
     }
-     public static HashMap<Integer, OrderDTO> create(HashMap<Integer, Order> orders, CustomerDTO custDTO)
+
+    public static HashMap<Integer, OrderDTO> create(HashMap<Integer, Order> orders, CustomerDTO custDTO)
     {
         if (orders == null)
         {
@@ -117,6 +119,25 @@ public class DTO_Factory
             ordersDTO.put(orderDTO.getOrderId(), orderDTO);
         }
         return ordersDTO;
+    }
+
+    public static CustomerDTO create(Customer customer)
+    {
+        if (customer == null)
+        {
+            return null;
+        }
+
+        CustomerDTO custDTO
+                = new CustomerDTO(
+                        customer.getCustomerId(),
+                        customer.getName(),
+                        customer.getPassword(),
+                        customer.getUserName());
+
+        custDTO.setOrders(
+                DTO_Factory.create(customer.getOrders(), custDTO));
+        return custDTO;
     }
 
 }

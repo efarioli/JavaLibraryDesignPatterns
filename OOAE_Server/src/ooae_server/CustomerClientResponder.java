@@ -6,15 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import ooae_library.data_transfer_object.CustomerDTO;
-import ooae_library.data_transfer_object.ItemDTO;
-import ooae_library.data_transfer_object.OrderDTO;
-import ooae_library.data_transfer_object.OrderLineDTO;
-import ooae_library.data_transfer_object.SupplierDTO;
-import ooae_server.entity.Customer;
-import ooae_server.entity.Item;
-import ooae_server.entity.Order;
-import ooae_server.entity.OrderLine;
-import ooae_server.entity.Supplier;
+import ooae_server.entity.*;
 
 /**
  *
@@ -36,8 +28,7 @@ public class CustomerClientResponder implements Runnable
         if (inputParts.length > 2)
         {
             jsonInStr = inputParts[2];
-        }
-        else
+        } else
         {
             jsonInStr = null;
         }
@@ -62,7 +53,7 @@ public class CustomerClientResponder implements Runnable
                         cancelledOrder = order.cancel();
                     }
 
-                    outStr = new Gson().toJson(convertOrderToDTO(cancelledOrder, null));
+                    outStr = new Gson().toJson(DTO_Factory.create(cancelledOrder, null));
                     break;
 
                 case "login":
@@ -72,7 +63,7 @@ public class CustomerClientResponder implements Runnable
 
                     Customer user = customer.login();
 
-                    outStr = new Gson().toJson(convertCustomerToDTO(user));
+                    outStr = new Gson().toJson(DTO_Factory.create(user));
                     break;
 
                 case "placeOrder":
@@ -84,13 +75,13 @@ public class CustomerClientResponder implements Runnable
 
                     Order insertedOrder = orderToInsert.insert();
 
-                    outStr = new Gson().toJson(convertOrderToDTO(insertedOrder, null));
+                    outStr = new Gson().toJson(DTO_Factory.create(insertedOrder, null));
                     break;
 
                 case "viewAllItems":
                     ArrayList<Item> allItems = Item.findAllItems();
 
-                    outStr = new Gson().toJson(convertItemsToDTO(allItems));
+                    outStr = new Gson().toJson(DTO_Factory.create(allItems));
                     break;
 
                 case "viewItem":
@@ -98,7 +89,7 @@ public class CustomerClientResponder implements Runnable
 
                     Item itemToView = Item.findItem(itemId);
 
-                    outStr = new Gson().toJson(convertItemToDTO(itemToView));
+                    outStr = new Gson().toJson(DTO_Factory.create(itemToView));
                     break;
 
                 case "viewMyOrders":
@@ -108,7 +99,7 @@ public class CustomerClientResponder implements Runnable
 
                     HashMap<Integer, Order> myOrders = Order.findOrdersForCustomer(customer2);
 
-                    outStr = new Gson().toJson(convertOrdersToDTO(myOrders, null));
+                    outStr = new Gson().toJson(DTO_Factory.create(myOrders, null));
                     break;
 
                 default:
@@ -121,8 +112,7 @@ public class CustomerClientResponder implements Runnable
             {
                 socket.close();
             }
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
 //            e.printStackTrace();
             clientOut.println(e.getMessage());
@@ -130,121 +120,4 @@ public class CustomerClientResponder implements Runnable
         }
     }
 
-    private CustomerDTO convertCustomerToDTO(Customer customer)
-    {
-        if (customer == null)
-        {
-            return null;
-        }
-
-        CustomerDTO custDTO
-                = new CustomerDTO(
-                        customer.getCustomerId(),
-                        customer.getName(),
-                        customer.getPassword(),
-                        customer.getUserName());
-
-        custDTO.setOrders(
-                convertOrdersToDTO(customer.getOrders(), custDTO));
-        return custDTO;
-    }
-
-    private ItemDTO convertItemToDTO(Item item)
-    {
-        ItemDTO itemDTO
-                = new ItemDTO(
-                        item.getDescription(),
-                        item.getItemId(),
-                        item.getName(),
-                        item.getPrice(),
-                        item.getQuantityInStock(),
-                        item.getStockReorderLevel(),
-                        convertSupplierToDTO(item.getSupplier()));
-
-        return itemDTO;
-    }
-
-    private ArrayList<ItemDTO> convertItemsToDTO(ArrayList<Item> items)
-    {
-        ArrayList<ItemDTO> list = new ArrayList<>(items.size());
-        for (Item item : items)
-        {
-            list.add(convertItemToDTO(item));
-        }
-
-        return list;
-    }
-
-    private OrderDTO convertOrderToDTO(Order order, CustomerDTO custDTO)
-    {
-        OrderDTO orderDTO
-                = new OrderDTO(
-                        custDTO,
-                        order.getOrderDateTime(),
-                        order.getOrderId(),
-                        order.getStatus().toString());
-
-        orderDTO.setOrderLines(
-                convertOrderLinesToDTO(order.getOrderLines(), orderDTO));
-
-        return orderDTO;
-    }
-
-    private HashMap<Integer, OrderDTO> convertOrdersToDTO(HashMap<Integer, Order> orders, CustomerDTO custDTO)
-    {
-        if (orders == null)
-        {
-            return null;
-        }
-
-        HashMap<Integer, OrderDTO> ordersDTO = new HashMap<>();
-        for (Order order : orders.values())
-        {
-            OrderDTO orderDTO = convertOrderToDTO(order, custDTO);
-
-            ordersDTO.put(orderDTO.getOrderId(), orderDTO);
-        }
-        return ordersDTO;
-    }
-
-    private OrderLineDTO convertOrderLineToDTO(OrderLine line, OrderDTO orderDTO)
-    {
-        return new OrderLineDTO(
-                convertItemToDTO(line.getItem()),
-                orderDTO,
-                line.getOrderLineId(),
-                line.getPrice(),
-                line.getQuantity());
-    }
-
-    private HashMap<Integer, OrderLineDTO> convertOrderLinesToDTO(HashMap<Integer, OrderLine> lines, OrderDTO orderDTO)
-    {
-        if (lines == null)
-        {
-            return null;
-        }
-
-        HashMap<Integer, OrderLineDTO> orderLinesDTO = new HashMap<>(lines.size());
-        for (OrderLine line : lines.values())
-        {
-            OrderLineDTO lineDTO = convertOrderLineToDTO(line, orderDTO);
-            orderLinesDTO.put(lineDTO.getOrderLineId(), lineDTO);
-        }
-        return orderLinesDTO;
-    }
-
-    private SupplierDTO convertSupplierToDTO(Supplier supplier)
-    {
-        if (supplier == null)
-        {
-            return null;
-        }
-        
-        SupplierDTO supplierDTO
-                = new SupplierDTO(
-                        supplier.getName(),
-                        supplier.getSupplierId());
-
-        return supplierDTO;
-    }
 }
