@@ -12,16 +12,16 @@ import java.sql.SQLException;
 public abstract class DB_ConnectionManager
 {
 
-        private DB_ConnectionPool pool = new DB_ConnectionPool();
+    private DB_ConnectionPool pool = new DB_ConnectionPool();
 
     protected final void closeConnection(Connection conn) throws Exception
     {
-       pool.releaseConnection(conn);
+        pool.releaseConnection(conn);
     }
 
     protected final Connection getConnection() throws Exception
     {
-       return pool.acquireConnection();
+        return pool.acquireConnection();
     }
 
     public void dropTable() throws Exception

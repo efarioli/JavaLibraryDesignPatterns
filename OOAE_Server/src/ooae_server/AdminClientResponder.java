@@ -61,7 +61,7 @@ public class AdminClientResponder implements Runnable
 
                     Item insertedItem = item.insert();
 
-                    outStr = new Gson().toJson(convertItemToDTO(insertedItem));
+                    outStr = new Gson().toJson(DTO_Factory.create(insertedItem));
                     break;
 
                 case "checkNeedForDatabaseInitialisation":
@@ -83,7 +83,7 @@ public class AdminClientResponder implements Runnable
                         shippedOrder = order.ship();
                     }
 
-                    outStr = new Gson().toJson(convertOrderToDTO(shippedOrder, null));
+                    outStr = new Gson().toJson(DTO_Factory.create(shippedOrder, null));
                     break;
 
                 case "updateItemQuantityInStock":
@@ -93,13 +93,13 @@ public class AdminClientResponder implements Runnable
 
                     Item updatedItem = itemToUpdate.updateItemQuantityInStock();
 
-                    outStr = new Gson().toJson(convertItemToDTO(updatedItem));
+                    outStr = new Gson().toJson(DTO_Factory.create(updatedItem));
                     break;
 
                 case "viewAllItems":
                     ArrayList<Item> allItems = Item.findAllItems();
 
-                    outStr = new Gson().toJson(convertItemsToDTO(allItems));
+                    outStr = new Gson().toJson(DTO_Factory.create(allItems));
                     break;
 
                 case "viewItem":
@@ -107,13 +107,13 @@ public class AdminClientResponder implements Runnable
 
                     Item itemToView = Item.findItem(itemId);
 
-                    outStr = new Gson().toJson(convertItemToDTO(itemToView));
+                    outStr = new Gson().toJson(DTO_Factory.create(itemToView));
                     break;
 
                 case "viewItemsToReorder":
                     ArrayList<Item> itemsToReorder = Item.findItemsToReorder();
 
-                    outStr = new Gson().toJson(convertItemsToDTO(itemsToReorder));
+                    outStr = new Gson().toJson(DTO_Factory.create(itemsToReorder));
                     break;
 
                 default:
@@ -151,92 +151,7 @@ public class AdminClientResponder implements Runnable
         }
     }
 
-    private ItemDTO convertItemToDTO(Item item)
-    {
-        ItemDTO itemDTO
-                = new ItemDTO(
-                        item.getDescription(),
-                        item.getItemId(),
-                        item.getName(),
-                        item.getPrice(),
-                        item.getQuantityInStock(),
-                        item.getStockReorderLevel(),
-                        convertSupplierToDTO(item.getSupplier()));
-
-        return itemDTO;
-    }
-
-    private ArrayList<ItemDTO> convertItemsToDTO(ArrayList<Item> items)
-    {
-        ArrayList<ItemDTO> list = new ArrayList<>(items.size());
-        for (Item item : items)
-        {
-            list.add(convertItemToDTO(item));
-        }
-
-        return list;
-    }
-
-    private OrderDTO convertOrderToDTO(Order order, CustomerDTO custDTO)
-    {
-        if (order == null)
-        {
-            return null;
-        }
-        
-        OrderDTO orderDTO
-                = new OrderDTO(
-                        custDTO,
-                        order.getOrderDateTime(),
-                        order.getOrderId(),
-                        order.getStatus().toString());
-
-        orderDTO.setOrderLines(
-                convertOrderLinesToDTO(order.getOrderLines(), orderDTO));
-
-        return orderDTO;
-    }
-
-    private OrderLineDTO convertOrderLineToDTO(OrderLine line, OrderDTO orderDTO)
-    {
-        return new OrderLineDTO(
-                convertItemToDTO(line.getItem()),
-                orderDTO,
-                line.getOrderLineId(),
-                line.getPrice(),
-                line.getQuantity());
-    }
-
-    private HashMap<Integer, OrderLineDTO> convertOrderLinesToDTO(HashMap<Integer, OrderLine> lines, OrderDTO orderDTO)
-    {
-        if (lines == null)
-        {
-            return null;
-        }
-
-        HashMap<Integer, OrderLineDTO> orderLinesDTO = new HashMap<>(lines.size());
-        for (OrderLine line : lines.values())
-        {
-            OrderLineDTO lineDTO = convertOrderLineToDTO(line, orderDTO);
-            orderLinesDTO.put(lineDTO.getOrderLineId(), lineDTO);
-        }
-        return orderLinesDTO;
-    }
-
-    private SupplierDTO convertSupplierToDTO(Supplier supplier)
-    {
-        if (supplier == null)
-        {
-            return null;
-        }
-        
-        SupplierDTO supplierDTO
-                = new SupplierDTO(
-                        supplier.getName(),
-                        supplier.getSupplierId());
-
-        return supplierDTO;
-    }
+   
 
     private void initialiseDatabase() throws Exception
     {
