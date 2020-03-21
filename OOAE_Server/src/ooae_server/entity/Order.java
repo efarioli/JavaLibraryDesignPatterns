@@ -6,12 +6,15 @@ import java.util.Iterator;
 import ooae_library.data_transfer_object.OrderDTO;
 import ooae_library.data_transfer_object.OrderLineDTO;
 import ooae_server.database.OrderGateway;
-import ooae_server.state.OrderState;
-
 /**
  *
  * @author gdm1
  */
+import ooae_server.state.OrderNull;
+import ooae_server.state.OrderPlaced;
+import ooae_server.state.OrderState;
+import ooae_server.state.OrderStatusFactory;
+
 public class Order
 {
 
@@ -34,7 +37,7 @@ public class Order
     {
         this.orderDateTime = order.getOrderDateTime();
         this.orderId = order.getOrderId();
-        this.status = new OrderState(order.getStatus());
+        this.status = OrderStatusFactory.create(order.getStatus());
 
         this.orderLines = new HashMap<>();
         for (OrderLineDTO line : order.getOrderLines().values())
@@ -56,8 +59,7 @@ public class Order
                 //remove order line for this item
                 orderLines.remove(orderLine.getOrderLineId());
             }
-        }
-        else
+        } else
         {
             orderLine
                     = new OrderLine(
@@ -74,13 +76,7 @@ public class Order
 
     public Order cancel() throws Exception
     {
-        OrderGateway orderTable = new OrderGateway();
-
-        if (status.toString().equalsIgnoreCase("Placed"))
-        {
-            return orderTable.cancelOrder(orderId);
-        }
-        return null;
+        return status.cancel(this);
     }
 
     public static Order findOrder(int orderId) throws Exception
@@ -172,17 +168,11 @@ public class Order
 
     public void setStatus(String status)
     {
-        this.status = new OrderState(status);
+        this.status = OrderStatusFactory.create(status);
     }
 
     public Order ship() throws Exception
     {
-        OrderGateway orderTable = new OrderGateway();
-
-        if (status.toString().equalsIgnoreCase("Placed"))
-        {
-            return orderTable.shipOrder(orderId);
-        }
-        return null;
+        return status.ship(this);
     }
 }
