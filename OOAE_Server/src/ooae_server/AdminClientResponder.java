@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import ooae_library.data_transfer_object.ItemDTO;
+import ooae_server.database.AdminClientResponderGateway;
 import ooae_server.entity.*;
 import ooae_server.database.CustomerGateway;
 import ooae_server.database.ItemGateway;
@@ -22,6 +23,7 @@ public class AdminClientResponder implements Runnable
     private final String command;
     private final String jsonInStr;
     private final Socket socket;
+    private final AdminClientResponderGateway acResponderGateway = new AdminClientResponderGateway();
 
     public AdminClientResponder(Socket socket, PrintWriter clientOut, String[] inputParts)
     {
@@ -127,47 +129,12 @@ public class AdminClientResponder implements Runnable
 
     private void checkNeedForDatabaseInitialisation() throws Exception
     {
-        CustomerGateway customerTable = new CustomerGateway();
-        ItemGateway itemTable = new ItemGateway();
-        OrderGateway orderTable = new OrderGateway();
-        SupplierGateway supplierTable = new SupplierGateway();
+        acResponderGateway.checkNeedForDatabaseInitialisation();
 
-        if (!customerTable.exists()
-                || !itemTable.exists()
-                || !orderTable.exists()
-                || !supplierTable.exists())
-        {
-            initialiseDatabase();
-        }
     }
 
     private void initialiseDatabase() throws Exception
     {
-        CustomerGateway customerTable = new CustomerGateway();
-        ItemGateway itemTable = new ItemGateway();
-        OrderGateway orderTable = new OrderGateway();
-        SupplierGateway supplierTable = new SupplierGateway();
-        String errorMsgs = "";
-
-        try
-        {
-            orderTable.dropTable();
-            itemTable.dropTable();
-            supplierTable.dropTable();
-            customerTable.dropTable();
-
-            customerTable.initialiseTable();
-            supplierTable.initialiseTable();
-            itemTable.initialiseTable();
-            orderTable.initialiseTable();
-        } catch (Exception e)
-        {
-            errorMsgs += e.getMessage() + "\n";
-        }
-
-        if (!errorMsgs.isEmpty())
-        {
-            throw new Exception(errorMsgs);
-        }
+        acResponderGateway.initialiseDatabase();
     }
 }
