@@ -19,6 +19,10 @@ public class DTO_Factory
 
     public static ItemDTO create(Item item)
     {
+        if (item == null)
+        {
+            return null;
+        }
         ItemDTO itemDTO
                 = new ItemDTO(
                         item.getDescription(),
