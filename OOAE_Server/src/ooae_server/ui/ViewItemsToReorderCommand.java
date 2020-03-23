@@ -24,14 +24,12 @@ public class ViewItemsToReorderCommand implements Command
         this.outStr = outStr;
     }
 
-    
     @Override
     public String execute()
     {
         try
         {
             ArrayList<Item> itemsToReorder = Item.findItemsToReorder();
-
             outStr = new Gson().toJson(DTO_Factory.create(itemsToReorder));
         } catch (Exception ex)
         {
@@ -40,5 +38,4 @@ public class ViewItemsToReorderCommand implements Command
         }
         return outStr;
     }
-
 }

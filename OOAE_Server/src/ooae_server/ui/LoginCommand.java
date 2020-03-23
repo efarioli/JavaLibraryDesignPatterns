@@ -32,11 +32,8 @@ public class LoginCommand implements Command
         try
         {
             CustomerDTO customerDTO = new Gson().fromJson(jsonInStr, CustomerDTO.class);
-
             Customer customer = new Customer(customerDTO);
-
             Customer user = customer.login();
-
             outStr = new Gson().toJson(DTO_Factory.create(user));
         } catch (Exception ex)
         {

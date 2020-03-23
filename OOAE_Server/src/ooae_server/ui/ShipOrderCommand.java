@@ -19,7 +19,7 @@ public class ShipOrderCommand implements Command
     private String outStr;
     private String jsonInStr;
 
-    public ShipOrderCommand( String jsonInStr, String outStr)
+    public ShipOrderCommand(String jsonInStr, String outStr)
     {
         this.outStr = outStr;
         this.jsonInStr = jsonInStr;
@@ -30,17 +30,13 @@ public class ShipOrderCommand implements Command
     {
         try
         {
-
             int orderId = new Gson().fromJson(jsonInStr, Integer.class);
-
             Order order = Order.findOrder(orderId);
             Order shippedOrder = null;
-
             if (order != null)
             {
                 shippedOrder = order.ship();
             }
-
             outStr = new Gson().toJson(DTO_Factory.create(shippedOrder, null));
         } catch (Exception ex)
         {

@@ -6,8 +6,6 @@
 package ooae_server.ui;
 
 import com.google.gson.Gson;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ooae_library.data_transfer_object.CustomerDTO;
 import ooae_server.DTO_Factory;
 import ooae_server.entity.Customer;
@@ -23,7 +21,7 @@ public class PlaceOrderCommand implements Command
     private String outStr;
     private String jsonInStr;
 
-       public PlaceOrderCommand(String jsonInStr, String defaultOutStr)
+    public PlaceOrderCommand(String jsonInStr, String defaultOutStr)
     {
         this.jsonInStr = jsonInStr;
         this.outStr = outStr;
@@ -35,13 +33,9 @@ public class PlaceOrderCommand implements Command
         try
         {
             CustomerDTO customerDTO1 = new Gson().fromJson(jsonInStr, CustomerDTO.class);
-
             Customer customer1 = new Customer(customerDTO1);
-
             Order orderToInsert = customer1.getOrders().get(-1);
-
             Order insertedOrder = orderToInsert.insert();
-
             outStr = new Gson().toJson(DTO_Factory.create(insertedOrder, null));
         } catch (Exception ex)
         {
@@ -50,5 +44,4 @@ public class PlaceOrderCommand implements Command
         }
         return outStr;
     }
-
 }

@@ -20,7 +20,7 @@ public class ViewAllItemsCommand implements Command
     private String outStr;
     private String jsonInStr;
 
-    public ViewAllItemsCommand(String jsonInStr, String outString )
+    public ViewAllItemsCommand(String jsonInStr, String outString)
     {
         this.outStr = outStr;
         this.jsonInStr = jsonInStr;
@@ -32,7 +32,6 @@ public class ViewAllItemsCommand implements Command
         try
         {
             ArrayList<Item> allItems = Item.findAllItems();
-
             outStr = new Gson().toJson(DTO_Factory.create(allItems));
         } catch (Exception ex)
         {
@@ -40,7 +39,5 @@ public class ViewAllItemsCommand implements Command
             outStr = "ERROR: Unrecognised command";
         }
         return outStr;
-
     }
-
 }

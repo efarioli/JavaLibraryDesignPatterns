@@ -5,14 +5,7 @@
  */
 package ooae_server.ui;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import ooae_server.AdminClientResponderCopy;
 import ooae_server.database.AdminClientResponderGateway;
-import ooae_server.database.CustomerGateway;
-import ooae_server.database.ItemGateway;
-import ooae_server.database.OrderGateway;
-import ooae_server.database.SupplierGateway;
 
 /**
  *
@@ -39,10 +32,7 @@ public class CheckNeedForDatabaseInitialisationCommand implements Command
         {
             System.out.println(ex.getMessage());
             outStr = "ERROR: Unrecognised command";
-
         }
         return outStr;
-
     }
-
 }
