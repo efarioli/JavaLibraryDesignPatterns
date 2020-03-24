@@ -1,5 +1,7 @@
 package ooae_customer_client;
 
+import ooae_customer_client.visitor.OrderDTOVisitable;
+import ooae_customer_client.visitor.FormatOrderAsString;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
@@ -28,7 +30,6 @@ public class OOAE_Customer_Client
     private static final String HOSTNAME = "localhost";
     private static final int PORT_NUMBER = 30000;
 
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     private static final int LOGIN = 1;
     private static final int VIEW_ALL_ITEMS = 2;
@@ -87,8 +88,7 @@ public class OOAE_Customer_Client
 
                                 System.out.println("Your cart is empty");
                             }
-                        }
-                        else
+                        } else
                         {
                             System.out.println("Your cart is already empty");
                         }
@@ -112,8 +112,7 @@ public class OOAE_Customer_Client
                         if (user.getCustomerId() != -1)
                         {
                             System.out.println("Login was successful");
-                        }
-                        else
+                        } else
                         {
                             user = null;
                             System.out.println("Login credentials were not recognised");
@@ -149,13 +148,11 @@ public class OOAE_Customer_Client
                                     displayOrder(newOrder);
                                     clearCart();
                                 }
-                            }
-                            else
+                            } else
                             {
                                 System.out.println("Your cart is empty, there is no order to place");
                             }
-                        }
-                        else
+                        } else
                         {
                             System.out.println("ERROR: You must be logged in to access this feature");
                         }
@@ -188,8 +185,7 @@ public class OOAE_Customer_Client
                         if (itemsCache.containsKey(itemId))
                         {
                             item = itemsCache.get(itemId);
-                        }
-                        else
+                        } else
                         {
                             outToServer.println("Customer#viewItem#" + new Gson().toJson(itemId));
 
@@ -201,7 +197,7 @@ public class OOAE_Customer_Client
                         {
                             displayItem(item);
 
-                            char response 
+                            char response
                                     = KeyboardInputter
                                             .getString("\nAdd to cart? (y/n)")
                                             .toLowerCase()
@@ -232,8 +228,7 @@ public class OOAE_Customer_Client
                             {
                                 displayOrder(order1);
                             }
-                        }
-                        else
+                        } else
                         {
                             System.out.println("ERROR: You must be logged in to access this feature");
                         }
@@ -244,8 +239,7 @@ public class OOAE_Customer_Client
                 }
 
                 socket.close();
-            }
-            catch (IOException ioe)
+            } catch (IOException ioe)
             {
                 System.out.println(ioe.getMessage());
             }
@@ -293,22 +287,12 @@ public class OOAE_Customer_Client
 
     protected static void displayOrder(OrderDTO order)
     {
-        double orderTotal = 0;
-        System.out.printf("\nOrder ID: %d (%s)\n", order.getOrderId(), order.getStatus());
-        System.out.println("\tDate/time of order: " + SDF.format(order.getOrderDateTime().getTime()));
-        System.out.println("\tItems");
-        System.out.printf("\t    %-4s  %-20s    %6s    %4s    %8s\n", "ID", "Name", "Price", "Qty", "Cost");
-        for (OrderLineDTO line : order.getOrderLines().values())
-        {
-            orderTotal += line.getPrice() * line.getQuantity();
-            System.out.printf("\t    %-4d  %-20s    %6.2f    %4d    %8.2f\n",
-                    line.getItem().getItemId(),
-                    line.getItem().getName(),
-                    line.getPrice(),
-                    line.getQuantity(),
-                    line.getPrice() * line.getQuantity());
-        }
-        System.out.printf("\t------------------------------------------------------------\n");
-        System.out.printf("\tOrder total (£):                                    %8.2f\n", orderTotal);
+        OrderDTOVisitable visitable = new OrderDTOVisitable(order);
+        FormatOrderAsString visitor = new FormatOrderAsString();
+        visitable.accept(visitor);
+        System.out.println(
+                visitor.visit(visitable)
+        );
+
     }
 }
