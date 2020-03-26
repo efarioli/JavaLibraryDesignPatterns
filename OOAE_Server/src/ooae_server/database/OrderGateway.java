@@ -120,23 +120,11 @@ public class OrderGateway extends DB_ConnectionManager
             ResultSet rs = stmt.executeQuery();
             if (rs.next())
             {
-                orderBuilder = new OrderBuilder();
-                Calendar orderTimestamp = Calendar.getInstance();
-                orderTimestamp.setTimeInMillis(rs.getTimestamp("OrderDateTime").getTime());
-                orderBuilder.withOrderId(rs.getInt("OrderId")).withCustomer(customer).
-                        withOrderDateTime(orderTimestamp).withStatus(rs.getString("Status"));
-
+                orderBuilder = getOrderBuilderSettingMainPart(rs, customer);
                 do
                 {
-                    ItemBuilder itemBuilder = new ItemBuilder();
-                    itemBuilder = itemBuilder.withDescription(rs.getString("Description")).
-                            withItemId(rs.getInt("ItemId")).withName(rs.getString("Name"));
-                    Item item = itemBuilder.build();
-
-                    OrderLineBuilder oLineBuilder = new OrderLineBuilder();
-                    oLineBuilder.withItem(item).withOrderLineId(rs.getInt("OrderLineId"))
-                            .withPrice(rs.getDouble("Price")).withQuantity(rs.getInt("Quantity"));
-                    OrderLine orderLine = oLineBuilder.build();
+                    Item item = getItem(rs);
+                    OrderLine orderLine = getOrderLine(rs, item);
                     orderBuilder.withAddOrderLine(orderLine);
                 } while (rs.next());
             } else
@@ -206,25 +194,11 @@ public class OrderGateway extends DB_ConnectionManager
                 if (tempOrderId != orderId)
                 {
                     tempOrderId = orderId;
-                    Calendar orderTimestamp = Calendar.getInstance();
-                    orderTimestamp.setTimeInMillis(rs.getTimestamp("OrderDateTime").getTime());
-
-                    orderBuilder = new OrderBuilder();
-                    orderBuilder.withOrderId(rs.getInt("OrderId")).withCustomer(customer).
-                            withOrderDateTime(orderTimestamp).withStatus(rs.getString("Status"));
+                    orderBuilder = getOrderBuilderSettingMainPart(rs, customer);
                     orderBuilderList.add(orderBuilder);
-
                 }
-
-                ItemBuilder itemBuilder = new ItemBuilder();
-                Item item = itemBuilder.withDescription(rs.getString("Description")).
-                        withItemId(rs.getInt("ItemId")).withName(rs.getString("Name")).
-                        build();
-
-                OrderLineBuilder oLinebuilder = new OrderLineBuilder();
-                OrderLine orderLine = oLinebuilder.withItem(item).withOrderLineId(rs.getInt("OrderLineId"))
-                        .withPrice(rs.getDouble("Price")).withQuantity(rs.getInt("Quantity"))
-                        .build();
+                Item item = getItem(rs);
+                OrderLine orderLine = getOrderLine(rs, item);
                 orderBuilder.withAddOrderLine(orderLine);
             }
             orderBuilderList.forEach((orderBuilderIt) ->
@@ -394,5 +368,33 @@ public class OrderGateway extends DB_ConnectionManager
         } catch (SQLException ex)
         {
         }
+    }
+
+    private Item getItem(ResultSet rs) throws SQLException
+    {
+        ItemBuilder itemBuilder = new ItemBuilder();
+        Item item = itemBuilder.withDescription(rs.getString("Description")).
+                withItemId(rs.getInt("ItemId")).withName(rs.getString("Name")).
+                build();
+        return item;
+    }
+
+    private OrderLine getOrderLine(ResultSet rs, Item item) throws SQLException
+    {
+        OrderLineBuilder oLinebuilder = new OrderLineBuilder();
+        OrderLine orderLine = oLinebuilder.withItem(item).withOrderLineId(rs.getInt("OrderLineId"))
+                .withPrice(rs.getDouble("Price")).withQuantity(rs.getInt("Quantity"))
+                .build();
+        return orderLine;
+    }
+
+    private OrderBuilder getOrderBuilderSettingMainPart(ResultSet rs, Customer customer) throws SQLException
+    {
+        OrderBuilder orderBuilder = new OrderBuilder();
+        Calendar orderTimestamp = Calendar.getInstance();
+        orderTimestamp.setTimeInMillis(rs.getTimestamp("OrderDateTime").getTime());
+        orderBuilder.withOrderId(rs.getInt("OrderId")).withCustomer(customer).
+                withOrderDateTime(orderTimestamp).withStatus(rs.getString("Status"));
+        return orderBuilder;
     }
 }
