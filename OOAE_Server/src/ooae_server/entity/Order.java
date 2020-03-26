@@ -175,4 +175,9 @@ public class Order
     {
         return status.ship(this);
     }
+
+    public void addOrderLine(OrderLine newOrderLine)
+    {
+        orderLines.put(newOrderLine.getOrderLineId(), newOrderLine);
+    }
 }
