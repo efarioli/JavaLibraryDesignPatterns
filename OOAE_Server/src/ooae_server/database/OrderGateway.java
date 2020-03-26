@@ -11,6 +11,9 @@ import ooae_server.entity.Customer;
 import ooae_server.entity.Item;
 import ooae_server.entity.Order;
 import ooae_server.entity.OrderLine;
+import ooae_server.entity.builder.ItemBuilder;
+import ooae_server.entity.builder.OrderBuilder;
+import ooae_server.entity.builder.OrderLineBuilder;
 
 /**
  *
@@ -106,8 +109,7 @@ public class OrderGateway extends DB_ConnectionManager
     private Order findOrder(int orderId, Customer customer) throws Exception
     {
         Connection conn = getConnection();
-        Order order = new Order();
-        order.setCustomer(customer);
+        OrderBuilder orderBuilder = new OrderBuilder();
 
         try
         {
@@ -116,28 +118,24 @@ public class OrderGateway extends DB_ConnectionManager
             ResultSet rs = stmt.executeQuery();
             if (rs.next())
             {
-                order.setOrderId(rs.getInt("OrderId"));
+                orderBuilder = new OrderBuilder();
                 Calendar orderTimestamp = Calendar.getInstance();
                 orderTimestamp.setTimeInMillis(rs.getTimestamp("OrderDateTime").getTime());
-                order.setOrderDateTime(orderTimestamp);
-                order.setStatus(rs.getString("Status"));
+                orderBuilder.withOrderId(rs.getInt("OrderId")).withCustomer(customer).
+                        withOrderDateTime(orderTimestamp).withStatus(rs.getString("Status"));
 
                 do
                 {
-                    Item item = new Item(
-                            rs.getString("Description"),
-                            rs.getInt("ItemId"),
-                            rs.getString("Name"),
-                            0,
-                            0,
-                            0,
-                            null);
+                    ItemBuilder itemBuilder = new ItemBuilder();
+                    itemBuilder = itemBuilder.withDescription(rs.getString("Description")).
+                            withItemId(rs.getInt("ItemId")).withName(rs.getString("Name"));
+                    Item item = itemBuilder.build();
 
-                    order.addOrderLine(
-                            rs.getInt("OrderLineId"),
-                            item,
-                            rs.getDouble("Price"),
-                            rs.getInt("Quantity"));
+                    OrderLineBuilder oLineBuilder = new OrderLineBuilder();
+                    oLineBuilder.withItem(item).withOrderLineId(rs.getInt("OrderLineId"))
+                            .withPrice(rs.getDouble("Price")).withQuantity(rs.getInt("Quantity"));
+                    OrderLine orderLine = oLineBuilder.build();
+                    orderBuilder.withAddOrderLine(orderLine);
                 } while (rs.next());
             } else
             {
@@ -151,7 +149,7 @@ public class OrderGateway extends DB_ConnectionManager
 
         closeConnection(conn);
 
-        return order;
+        return orderBuilder.build();
     }
 
     private int findOrderId(int customerId, Calendar orderDateTime) throws Exception
@@ -238,6 +236,7 @@ public class OrderGateway extends DB_ConnectionManager
         closeConnection(conn);
 
         return orders;
+
     }
 
     @Override
