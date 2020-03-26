@@ -5,8 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import ooae_server.entity.Customer;
 import ooae_server.entity.Item;
 import ooae_server.entity.Order;
@@ -186,7 +188,8 @@ public class OrderGateway extends DB_ConnectionManager
         HashMap<Integer, Order> orders = new HashMap<>();
         customer.setOrders(orders);
 
-        Order order = null;
+        List<OrderBuilder> orderBuilderList = new ArrayList<OrderBuilder>();
+        OrderBuilder orderBuilder = null;
         Connection conn = getConnection();
 
         try
@@ -194,39 +197,42 @@ public class OrderGateway extends DB_ConnectionManager
             PreparedStatement stmt = conn.prepareStatement(GET_ORDERS_FOR_CUSTOMER);
             stmt.setInt(1, customer.getCustomerId());
             ResultSet rs = stmt.executeQuery();
+            int tempOrderId = -1;
+
             while (rs.next())
             {
                 int orderId = rs.getInt("OrderId");
 
-                if (order == null || order.getOrderId() != orderId)
+                if (tempOrderId != orderId)
                 {
-                    order = new Order();
-                    order.setOrderId(orderId);
-                    orders.put(order.getOrderId(), order);
-
-                    order.setCustomer(customer);
-                    order.setOrderId(orderId);
+                    tempOrderId = orderId;
                     Calendar orderTimestamp = Calendar.getInstance();
                     orderTimestamp.setTimeInMillis(rs.getTimestamp("OrderDateTime").getTime());
-                    order.setOrderDateTime(orderTimestamp);
-                    order.setStatus(rs.getString("Status"));
+
+                    orderBuilder = new OrderBuilder();
+                    orderBuilder.withOrderId(rs.getInt("OrderId")).withCustomer(customer).
+                            withOrderDateTime(orderTimestamp).withStatus(rs.getString("Status"));
+                    orderBuilderList.add(orderBuilder);
+
                 }
 
-                Item item = new Item(
-                        rs.getString("Description"),
-                        rs.getInt("ItemId"),
-                        rs.getString("Name"),
-                        0,
-                        0,
-                        0,
-                        null);
+                ItemBuilder itemBuilder = new ItemBuilder();
+                Item item = itemBuilder.withDescription(rs.getString("Description")).
+                        withItemId(rs.getInt("ItemId")).withName(rs.getString("Name")).
+                        build();
 
-                order.addOrderLine(
-                        rs.getInt("OrderLineId"),
-                        item,
-                        rs.getDouble("Price"),
-                        rs.getInt("Quantity"));
+                OrderLineBuilder oLinebuilder = new OrderLineBuilder();
+                OrderLine orderLine = oLinebuilder.withItem(item).withOrderLineId(rs.getInt("OrderLineId"))
+                        .withPrice(rs.getDouble("Price")).withQuantity(rs.getInt("Quantity"))
+                        .build();
+                orderBuilder.withAddOrderLine(orderLine);
             }
+            orderBuilderList.forEach((orderBuilderIt) ->
+            {
+                Order orderTemp = orderBuilderIt.build();
+                orders.put(orderTemp.getOrderId(), orderTemp);
+
+            });
             stmt.close();
         } catch (SQLException sqle)
         {
