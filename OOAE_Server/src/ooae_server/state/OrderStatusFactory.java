@@ -26,22 +26,4 @@ public class OrderStatusFactory
         }
         return new OrderNull(str);
     }
-
-    public static String create(OrderPlaced op)
-    {
-        return "Placed";
-    }
-
-    public static String create(OrderShipped os)
-    {
-        return "Shipped";
-    }
-     public static String create(OrderCancelled oc)
-    {
-        return "Cancelled";
-    }
-      public static String create(OrderNull on)
-    {
-        return "";
-    }
 }
